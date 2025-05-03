@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 // In-memory store for request counts { ip: { count: number, date: string } }
 const requestCounts = {};
-const DAILY_LIMIT = 3;
+const DAILY_LIMIT = 6;
 
 // Enable trust proxy if behind a reverse proxy (like Nginx, Heroku) to get correct IP
 app.set('trust proxy', 1); // Uncomment if needed
