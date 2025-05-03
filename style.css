@@ -1,0 +1,107 @@
+/* Basic body styling */
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+body > * {
+    max-width: 800px; /* Max width for larger screens */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px; /* Add some padding */
+    padding-right: 15px;
+}
+
+h1 {
+    color: #0056b3;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Input field styling */
+#messageInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    display: block; 
+}
+
+/* Button styling */
+button {
+    display: block; /* Make button take full width */
+    width: 100%;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+    transition: background-color 0.2s ease; /* Add a small transition */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Style for the button when it's disabled */
+button:disabled {
+    background-color: #cccccc; /* Grey background */
+    color: #666666; /* Darker grey text */
+    cursor: not-allowed; /* Indicate it's not clickable */
+}
+
+/* Display message area styling */
+#displayMessage {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    min-height: 50px; /* Give it some initial height */
+    word-wrap: break-word; /* Ensure long words break */
+    display: none; /* Hide by default */
+}
+
+/* Loading Spinner Styles */
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: #7f83ff;
+    border-radius: 50%;
+    box-sizing: border-box;
+    display: none;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@media (max-width: 600px) {
+    body {
+        margin: 10px; /* Reduce margin on smaller screens */
+    }
+
+    h1 {
+        font-size: 24px; /* Slightly smaller heading */
+        margin-bottom: 20px;
+    }
+
+    #messageInput, button {
+        font-size: 14px; /* Adjust font size for inputs/buttons */
+    }
+}

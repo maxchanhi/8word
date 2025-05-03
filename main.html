@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Add viewport meta tag for responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI免費八字算命</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include the marked library for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <h1>AI免費八字算命</h1>
+    <div><p>請提供您的生辰八字（yyyy-mm-dd hh:mm），為您進行專業的八字命理分析。<br>
+        若您想詢問運勢，建議提供：
+        <ol>
+            <li>您的完整出生時間</li>
+            <li>當前所在地區</li>
+            <li>具體想詢問的事項（事業、財運、感情等）</li>
+        </ol>
+    </p>
+    </div>
+    <p>亦可輸入雙方的生辰八字例如：<br>男方：yyyy-mm-dd hh:mm<br>女方：yyyy-mm-dd hh:mm</p>
+    <input type="text" id="messageInput" placeholder="輸入生辰八字">
+    <!-- Add an id to the button -->
+    <button id="sendButton" onclick="sendMessage()">Send</button>
+
+    <div class="spinner" id="loadingSpinner"></div>
+    <div id="displayMessage"></div>
+    <br>
+    <p style="text-align: center;">歡迎使用以下連結打賞：</p>
+    <div style="text-align: center;"><script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="maxchanhi" data-color="#FFDD00" data-emoji="" data-font="Arial" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script></div>
+
+    <script>
+        function sendMessage() {
+            const text = document.getElementById("messageInput").value;
+            const displayElement = document.getElementById("displayMessage");
+            const spinnerElement = document.getElementById("loadingSpinner");
+            const sendButton = document.getElementById("sendButton"); // Get button element
+
+            sendButton.disabled = true;
+
+            displayElement.innerHTML = '';
+            displayElement.style.display = 'none';
+            spinnerElement.style.display = 'block';
+
+            if (!text || text.length >= 40) {
+                 console.log("Input is empty or too long. Message not sent.");
+                 displayElement.innerText = "Input is empty or too long (max 40 chars). Message not sent.";
+                 displayElement.style.display = 'block';
+                 spinnerElement.style.display = 'none';
+                 sendButton.disabled = false; // Re-enable button on validation failure
+                 return;
+            }
+
+            fetch("http://localhost:3000/message", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text })
+            })
+            .then(response => {
+                 if (response.status === 429) {
+                     return response.json().then(err => { throw new Error(err.message || "Hourly request limit reached.") });
+                 }
+                 if (!response.ok) {
+                     return response.json().then(err => { throw new Error(err.error || `HTTP error! status: ${response.status}`) });
+                 }
+                 return response.json();
+            })
+            .then(data => {
+                spinnerElement.style.display = 'none';
+                displayElement.innerHTML = '<strong>AI:</strong><br>' + marked.parse(data.aiResponse);
+                displayElement.style.display = 'block';
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                spinnerElement.style.display = 'none';
+                displayElement.innerText = `Error: ${error.message}`;
+                displayElement.style.display = 'block';
+            })
+            .finally(() => {
+                // Re-enable the button regardless of success or failure
+                sendButton.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
