@@ -6,8 +6,7 @@ const path = require("path");
 const OpenAI = require("openai"); // Use require for consistency
 
 const app = express();
-const port = 3000;
-
+const port = process.env.PORT || 3000;
 // In-memory store for request counts { ip: { count: number, date: string } }
 const requestCounts = {};
 const DAILY_LIMIT = 3;
