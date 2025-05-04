@@ -14,7 +14,7 @@
     <h1>AI Daily Horoscope Fortune Teller</h1> <!-- Changed Heading -->
     <div>
         <p>Please provide your Zodiac Sign (e.g., Aries, Taurus, Gemini...) or birthday to get your daily horoscope prediction.</p> <!-- Changed Instructions -->
-    </div>
+    
     <input type="text" id="messageInput" placeholder="Enter your Zodiac Sign"> <!-- Changed Placeholder -->
     <button id="sendButton" onclick="sendMessage()">Get Horoscope</button> <!-- Changed Button Text -->
 
@@ -23,7 +23,7 @@
     <br>
     <p style="text-align: center;">Enjoying the horoscope? Consider supporting:</p> <!-- Changed Text -->
     <div style="text-align: center;"><script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="maxchanhi" data-color="#FFDD00" data-emoji="" data-font="Arial" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script></div>
-
+    </div>
     <script>
         function sendMessage() {
             const text = document.getElementById("messageInput").value.trim(); // Trim whitespace
