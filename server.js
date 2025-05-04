@@ -1,22 +1,23 @@
-require('dotenv').config(); // Load environment variables from .env file
+require('dotenv').config();
 const express = require("express");
-const cors = require("cors");
+const cors =require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
-const OpenAI = require("openai"); // Use require for consistency
+const OpenAI = require("openai");
 
 const app = express();
 const port = process.env.PORT || 3000;
 const requestCounts = {};
-const DAILY_LIMIT = 3;
+const HOURLY_LIMIT = 5; // Adjusted limit name for clarity, you can set your desired limit
 
-app.set('trust proxy', 1); // Uncomment if needed
+app.set('trust proxy', 1);
 
+// Configure OpenAI client for SiliconFlow
 const openai = new OpenAI({
-        baseURL: 'https://api.deepseek.com',
-        apiKey: process.env.DEEPSEEK_API_KEY // Use the environment variable
+        baseURL: 'https://api.siliconflow.cn/v1', // SiliconFlow Base URL
+        apiKey: process.env.SK_API_KEY // Use SK_API_KEY from .env
 });
-// Middleware
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
@@ -27,64 +28,71 @@ app.get("/", (req, res) => {
 
 const rateLimiter = (req, res, next) => {
     const ip = req.ip || req.socket.remoteAddress;
-    // Get current date and hour as a unique string key (e.g., "2023-10-27T15")
     const currentHourISO = new Date().toISOString();
     const currentHourKey = currentHourISO.substring(0, 13); // YYYY-MM-DDTHH
+
     if (!requestCounts[ip] || requestCounts[ip].hourKey !== currentHourKey) {
-        // First request this hour or first request ever for this IP
         requestCounts[ip] = { count: 1, hourKey: currentHourKey };
-        console.log(`IP ${ip}: Request 1/${DAILY_LIMIT} for hour ${currentHourKey}`);
-        next(); // Proceed
-    } else if (requestCounts[ip].count < DAILY_LIMIT) {
-        // Subsequent request within the limit for this hour
+        console.log(`IP ${ip}: Request 1/${HOURLY_LIMIT} for hour ${currentHourKey}`);
+        next();
+    } else if (requestCounts[ip].count < HOURLY_LIMIT) {
         requestCounts[ip].count++;
-        console.log(`IP ${ip}: Request ${requestCounts[ip].count}/${DAILY_LIMIT} for hour ${currentHourKey}`);
-        next(); // Proceed
+        console.log(`IP ${ip}: Request ${requestCounts[ip].count}/${HOURLY_LIMIT} for hour ${currentHourKey}`);
+        next();
     } else {
-        // Limit exceeded for this hour
         console.log(`IP ${ip}: Rate limit exceeded for hour ${currentHourKey}`);
-        res.status(429).json({ error: "Too Many Requests", message: `你的使用次數到達上限，限額為每小時${DAILY_LIMIT}次。` });
-        // Do not call next()
+        res.status(429).json({ error: "Too Many Requests", message: `You have exceeded the hourly limit of ${HOURLY_LIMIT} requests.` });
     }
 };
 
-// Handle incoming messages - Apply rate limiter middleware HERE
-app.post("/message", rateLimiter, async (req, res) => { // Add rateLimiter before async handler
-    const { text } = req.body;
-    console.log("Received message:", text);
+// Changed endpoint to /horoscope
+app.post("/horoscope", rateLimiter, async (req, res) => {
+    const { text: zodiacSign } = req.body; // Renamed for clarity
+    console.log("Received Zodiac Sign:", zodiacSign);
 
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
+    // Updated system prompt for Daily Horoscope in English - Removed extra backticks
+    const systemPrompt = `You are an expert astrologer. Provide a concise daily horoscope prediction for the user based on their zodiac sign or the birthday. Respond in English. Do not answer non-horoscope related questions. 
+                        Response Format:
+                        **Summarize the overall mood:** Based on the provided [zodiac] daily horoscope text, summarize the overall mood or main theme for the day in one sentence.
 
-    // Define the system prompt dynamically inside the handler
-    const systemPrompt = `今天是${today}。你是一個精通八字算命的大師，請根據用戶提供的生辰八字進行分析，並以繁體中文回答。不要回答非八字算命相關的問題。`;
+                        **Extract Lucky Details:** From the [zodiac] daily horoscope text, extract the specific lucky color(s) and lucky number(s) mentioned.
+
+                        **Compare Love Advice:** From the [zodiac] daily horoscope text, analyze and compare the advice given to single individuals versus those in relationships.
+
+                        **Career/Work Guidance:** From the [zodiac] daily horoscope text, extract the key advice or predictions related to career or academics.
+
+                        **Identify Health Recommendations:** From the [zodiac] daily horoscope text, list the specific health recommendations or considerations mentioned.
+
+                        **Assess Overall Fortune:** From the [zodiac] daily horoscope text, provide the assessment of overall fortune for the day and explain the reasoning.`
 
     try {
-        // Call the DeepSeek API
         const completion = await openai.chat.completions.create({
-            model: "deepseek-chat", // Use the appropriate model name for DeepSeek
+            model: "THUDM/GLM-4-9B-0414", // Changed model as requested <mcreference link="https://docs.siliconflow.cn/cn/api-reference/chat-completions/chat-completions" index="0">0</mcreference>
             messages: [
-                { role: "system", content: systemPrompt }, // Use the dynamic system prompt
-                { role: "user", content: text }           // User's input follows
+                { role: "system", content: systemPrompt },
+                { role: "user", content: ` ${zodiacSign}. What is the prediction for today?` } // Structured user prompt
             ],
+            // Optional: Add parameters like max_tokens, temperature if needed
+            max_tokens: 800,
+            temperature: 1
         });
 
-        const aiResponse = completion.choices[0]?.message?.content || "No response content.";
+        const aiResponse = completion.choices[0]?.message?.content || "Sorry, I couldn't generate a horoscope right now.";
         console.log("AI Response:", aiResponse);
         res.json({
-            receivedText: text, 
+            receivedText: zodiacSign, // Send back the received sign
             aiResponse: aiResponse
         });
 
     } catch (error) {
-        console.error("Error calling DeepSeek API:", error);
+        console.error("Error calling SiliconFlow API:", error);
         if (!res.headersSent) {
-            res.status(500).json({ error: "Failed to get AI response", details: error.message });
+            // Provide a more generic error message to the user
+            res.status(500).json({ error: "Failed to get AI response", details: "An internal error occurred." });
         }
     }
 });
 
-// Start server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
