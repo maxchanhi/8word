@@ -7,11 +7,9 @@ const OpenAI = require("openai"); // Use require for consistency
 
 const app = express();
 const port = process.env.PORT || 3000;
-// In-memory store for request counts { ip: { count: number, date: string } }
 const requestCounts = {};
-const DAILY_LIMIT = 6;
+const DAILY_LIMIT = 3;
 
-// Enable trust proxy if behind a reverse proxy (like Nginx, Heroku) to get correct IP
 app.set('trust proxy', 1); // Uncomment if needed
 
 const openai = new OpenAI({
@@ -27,14 +25,11 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "main.html"));
 });
 
-// Rate Limiting Middleware
 const rateLimiter = (req, res, next) => {
     const ip = req.ip || req.socket.remoteAddress;
     // Get current date and hour as a unique string key (e.g., "2023-10-27T15")
     const currentHourISO = new Date().toISOString();
     const currentHourKey = currentHourISO.substring(0, 13); // YYYY-MM-DDTHH
-
-    // Check if IP exists or if the hour key is different from the stored one
     if (!requestCounts[ip] || requestCounts[ip].hourKey !== currentHourKey) {
         // First request this hour or first request ever for this IP
         requestCounts[ip] = { count: 1, hourKey: currentHourKey };
@@ -58,15 +53,18 @@ app.post("/message", rateLimiter, async (req, res) => { // Add rateLimiter befor
     const { text } = req.body;
     console.log("Received message:", text);
 
-    // Define the system prompt
-    const systemPrompt = "你是一個精通八字算命的大師，請根據用戶提供的生辰八字進行分析，並以繁體中文回答。不要回答非八字算命相關的問題。"; // Example system prompt
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+
+    // Define the system prompt dynamically inside the handler
+    const systemPrompt = `今天是${today}。你是一個精通八字算命的大師，請根據用戶提供的生辰八字進行分析，並以繁體中文回答。不要回答非八字算命相關的問題。`;
 
     try {
         // Call the DeepSeek API
         const completion = await openai.chat.completions.create({
             model: "deepseek-chat", // Use the appropriate model name for DeepSeek
             messages: [
-                { role: "system", content: systemPrompt }, // Add the system prompt here
+                { role: "system", content: systemPrompt }, // Use the dynamic system prompt
                 { role: "user", content: text }           // User's input follows
             ],
         });
