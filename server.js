@@ -70,7 +70,7 @@ app.post("/horoscope", rateLimiter, async (req, res) => {
             model: "THUDM/GLM-4-9B-0414", // Changed model as requested <mcreference link="https://docs.siliconflow.cn/cn/api-reference/chat-completions/chat-completions" index="0">0</mcreference>
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: ` ${zodiacSign}. What is the prediction for today?` } // Structured user prompt
+                { role: "user", content: zodiacSign } // Structured user prompt
             ],
             // Optional: Add parameters like max_tokens, temperature if needed
             max_tokens: 800,
