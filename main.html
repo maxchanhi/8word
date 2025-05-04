@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cn">
 <head>
     <meta charset="UTF-8">
     <!-- Add viewport meta tag for responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI免費八字算命</title>
+    <!-- Add Meta Description -->
+    <meta name="description" content="免費使用AI進行八字算命、運勢分析、今日運程預測。輸入您的生辰八字，獲取專業命理分析。">
     <link rel="stylesheet" href="style.css">
-    <!-- Include the marked library for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -22,7 +23,6 @@
     <p>亦可輸入雙方的生辰八字例如：<br>男方：yyyy-mm-dd hh:mm<br>女方：yyyy-mm-dd hh:mm</p>
     <p>更可以詢問今日運程！</p>
     <input type="text" id="messageInput" placeholder="輸入生辰八字">
-    <!-- Add an id to the button -->
     <button id="sendButton" onclick="sendMessage()">Send</button>
     </div>
     <div class="spinner" id="loadingSpinner"></div>
