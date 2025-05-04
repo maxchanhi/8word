@@ -8,11 +8,9 @@
     <link rel="stylesheet" href="style.css">
     <!-- Include the marked library for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1144455372936156"
-     crossorigin="anonymous"></script>
 </head>
 <body>
-    <h1>AI免費八字算命</h1>
+    <h1>每日AI免費八字算命</h1>
     <div><p>請提供您的生辰八字（yyyy-mm-dd hh:mm），為您進行專業的八字命理分析。<br>
         若您想詢問運勢，建議提供：
         <ol>
@@ -21,9 +19,10 @@
             <li>具體想詢問的事項（事業、財運、感情等）</li>
         </ol>
     </p>
-    
     <p>亦可輸入雙方的生辰八字例如：<br>男方：yyyy-mm-dd hh:mm<br>女方：yyyy-mm-dd hh:mm</p>
+    <p>更可以詢問今日運程！</p>
     <input type="text" id="messageInput" placeholder="輸入生辰八字">
+    <!-- Add an id to the button -->
     <button id="sendButton" onclick="sendMessage()">Send</button>
     </div>
     <div class="spinner" id="loadingSpinner"></div>
@@ -33,7 +32,6 @@
     <div style="text-align: center;"><script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="maxchanhi" data-color="#FFDD00" data-emoji="" data-font="Arial" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script></div>
 
     <script>
-    
         function sendMessage() {
             const text = document.getElementById("messageInput").value;
             const displayElement = document.getElementById("displayMessage");
@@ -55,7 +53,7 @@
                  return;
             }
 
-            fetch("https://eightword.onrender.com/message", {
+            fetch("https://eightword.onrender.com/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text })
