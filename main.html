@@ -55,7 +55,7 @@
                  return;
             }
 
-            fetch("https://eightword.onrender.com/", {
+            fetch("/message", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text })
